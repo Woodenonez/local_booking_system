@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GPU Booking</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input { padding: 8px 10px; font-size: 14px; }
+    button { padding: 8px 12px; font-size: 14px; cursor: pointer; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin: 12px 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f7f7f7; }
+    td.available { background: #fff; }
+    td.booked { background: #f0f0f0; color: #555; }
+    td.mine { outline: 2px solid #333; }
+    .muted { color: #666; font-size: 13px; }
+    .danger { color: #b00020; }
+    .ok { color: #0a7a2f; }
+    .hidden { display:none; }
+    .small { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>GPU Booking</h1>
+
+  <div class="card" id="setupCard">
+    <div class="row">
+      <label for="apiUrl"><b>Apps Script Web App URL</b></label>
+      <input id="apiUrl" style="min-width:420px" placeholder="https://script.google.com/macros/s/.../exec" />
+      <button id="saveApiBtn">Save</button>
+    </div>
+    <p class="muted small">
+      This is stored in your browser (localStorage). You can change it anytime.
+    </p>
+  </div>
+
+  <div class="card" id="loginCard">
+    <div class="row">
+      <label for="code"><b>Invitation Code</b></label>
+      <input id="code" placeholder="Enter code" />
+      <button id="loginBtn">Enter</button>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </div>
+    <p id="status" class="muted"></p>
+  </div>
+
+  <div class="card hidden" id="mainCard">
+    <div class="row">
+      <div><b>Week start (Monday):</b> <span id="weekStart"></span></div>
+      <button id="refreshBtn">Refresh</button>
+      <button id="resetApiBtn" title="Clear saved API URL in this browser">Reset API URL</button>
+    </div>
+    <p class="muted">
+      Click <b>Available</b> to book. Click your own booked slot (outlined) to cancel.  
+      Others’ bookings show as <b>Booked</b>.
+    </p>
+    <p class="muted">
+      Your bookings this week: <b><span id="mineCount">0</span></b> /
+      <b><span id="maxPerCode">5</span></b>
+    </p>
+
+    <div id="tableWrap"></div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="adminToggleBtn" class="hidden">Admin Panel</button>
+    </div>
+
+    <div class="card hidden" id="adminCard">
+      <b>Admin Cancel</b>
+      <p class="muted small">Cancel any slot by specifying day/session/gpu.</p>
+      <div class="row">
+        <input id="aDay" placeholder="day (0-4)" />
+        <input id="aSession" placeholder="session (0-2)" />
+        <input id="aGpu" placeholder="gpu (0-3)" />
+        <button id="adminCancelBtn">Cancel Slot</button>
+      </div>
+      <p id="adminStatus" class="muted"></p>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
