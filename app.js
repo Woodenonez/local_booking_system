@@ -36,34 +36,45 @@ function setAdminStatus(msg, cls = "muted") {
   el.textContent = msg;
 }
 
-async function apiPost(action, payload) {
-  const apiUrl = getApiUrl();
-  if (!apiUrl) throw new Error("Missing API URL. Paste your Apps Script Web App URL first.");
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = "cb_" + Math.random().toString(36).slice(2);
+    const u = new URL(url);
+    u.searchParams.set("callback", cbName);
 
-  const res = await fetch(apiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, ...payload }),
+    window[cbName] = (data) => {
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+
+    const script = document.createElement("script");
+    script.src = u.toString();
+    script.onerror = () => {
+      delete window[cbName];
+      script.remove();
+      reject(new Error("JSONP load failed"));
+    };
+
+    document.body.appendChild(script);
   });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || "Request failed");
-  return data;
 }
 
-async function apiGetWeek(weekStart = "", code = "") {
+async function apiCall(action, params) {
   const apiUrl = getApiUrl();
   if (!apiUrl) throw new Error("Missing API URL. Paste your Apps Script Web App URL first.");
 
   const u = new URL(apiUrl);
-  u.searchParams.set("action", "week");
-  if (weekStart) u.searchParams.set("week_start", weekStart);
-  if (code) u.searchParams.set("code", code);
+  u.searchParams.set("action", action);
+  for (const [k, v] of Object.entries(params || {})) {
+    if (v !== undefined && v !== null) u.searchParams.set(k, String(v));
+  }
 
-  const res = await fetch(u.toString(), { method: "GET" });
-  const data = await res.json();
+  const data = await jsonp(u.toString());
   if (!data.ok) throw new Error(data.error || "Request failed");
   return data;
 }
+
 
 function renderTable(grid, mineSet) {
   // grid[day][session][gpu] = boolean booked
@@ -112,11 +123,11 @@ function renderTable(grid, mineSet) {
 
             if (!booked) {
               if (!confirm(`Book ${DAYS[d]} ${SESS[s]} on GPU ${gi}?`)) return;
-              await apiPost("book", { code, week_start: window.__weekStart, day: d, session: s, gpu: gi });
+              await apiCall("book", { code, week_start: window.__weekStart, day: d, session: s, gpu: gi });
               await refresh();
             } else if (isMine) {
               if (!confirm(`Cancel your booking: ${DAYS[d]} ${SESS[s]} on GPU ${gi}?`)) return;
-              await apiPost("cancel", { code, week_start: window.__weekStart, day: d, session: s, gpu: gi });
+              await apiCall("cancel", { code, week_start: window.__weekStart, day: d, session: s, gpu: gi });
               await refresh();
             }
           } catch (e) {
@@ -139,7 +150,7 @@ function renderTable(grid, mineSet) {
 async function refresh() {
   setStatus("Loading…", "muted");
   const code = getCode();
-  const data = await apiGetWeek("", code);
+  const data = await apiCall("week", { code });
 
   window.__weekStart = data.week_start;
   $("weekStart").textContent = data.week_start;
@@ -160,7 +171,7 @@ async function login() {
     if (!code) return;
 
     setStatus("Checking code…", "muted");
-    const data = await apiPost("login", { code });
+    const data = await apiCall("login", { code });
     setCode(code);
     setIsAdmin(!!data.is_admin);
 
@@ -196,7 +207,7 @@ async function adminCancel() {
     const gpu = Number($("aGpu").value);
 
     setAdminStatus("Working…", "muted");
-    await apiPost("admin_cancel", { code, week_start: window.__weekStart, day, session, gpu });
+    await apiCall("admin_cancel", { code, week_start: window.__weekStart, day, session, gpu });
     setAdminStatus("Cancelled.", "ok");
     await refresh();
   } catch (e) {
