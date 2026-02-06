@@ -100,6 +100,7 @@ function renderTable(grid, mineSet) {
   for (let d = 0; d < DAYS.length; d++) {
     for (let s = 0; s < SESS.length; s++) {
       const tr = document.createElement("tr");
+      if (d % 2 === 1) tr.classList.add("day-alt");
       const label = document.createElement("td");
       label.textContent = `${DAYS[d]} / ${SESS[s]}`;
       tr.appendChild(label);

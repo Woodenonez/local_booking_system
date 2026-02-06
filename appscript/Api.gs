@@ -55,12 +55,19 @@ function doGet(e) {
         ? bookings.filter(b => b.code === code).map(b => ({ day: b.day, session: b.session, gpu: b.gpu }))
         : [];
 
+      let maxPer = getMaxSessionsUser_();
+      if (code) {
+        const r = getValidCodeRow_(code);
+        if (r && r.isAdmin) maxPer = getMaxSessionsAdmin_();
+      }
+
+
       return jsonpResponse_({
         ok: true,
         week_start: weekStart,
         grid,
         mine,
-        max_per_code: getMaxSessionsPerCode_(),
+        max_per_code: maxPer,
       }, cb);
     }
 
@@ -91,7 +98,9 @@ function doGet(e) {
       }
       if (isSlotBooked_(weekStart, day, session, gpu)) throw new Error("ALREADY_BOOKED");
 
-      const maxN = getMaxSessionsPerCode_();
+      const row = requireValidCode_(code);
+      const maxN = row.isAdmin ? getMaxSessionsAdmin_() : getMaxSessionsUser_();
+
       const cnt = countBookingsForCode_(weekStart, code);
       if (cnt >= maxN) throw new Error("MAX_REACHED");
 

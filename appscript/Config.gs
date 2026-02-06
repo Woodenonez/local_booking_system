@@ -29,11 +29,18 @@ function getTimezone_() {
   return cfg.timezone || "Europe/Stockholm";
 }
 
-function getMaxSessionsPerCode_() {
+function getMaxSessionsUser_() {
   const cfg = getConfig_();
-  const n = Number(cfg.max_sessions_per_code || 5);
+  const n = Number(cfg.max_sessions_user || cfg.max_sessions_per_code || 5);
   return Number.isFinite(n) ? n : 5;
 }
+
+function getMaxSessionsAdmin_() {
+  const cfg = getConfig_();
+  const n = Number(cfg.max_sessions_admin || 8);
+  return Number.isFinite(n) ? n : 8;
+}
+
 
 function parseCsvList_(s) {
   return String(s || "")
