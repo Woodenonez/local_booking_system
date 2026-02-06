@@ -1,10 +1,10 @@
-key,	value
-timezone,	Europe/Stockholm
-gpus,	"0,1,2,3"
-days,	"Mon,Tue,Wed,Thu,Fri"
-sessions,	"Morning,Afternoon,Evening"
-reset_weekday,	Sunday
-reset_hour_local,	10
-active_week_mode,	upcoming_monday
-max_sessions_user,	5
-max_sessions_admin,	8
+key,value
+timezone,Europe/Stockholm
+gpus,"0,1,2,3"
+days,"Mon,Tue,Wed,Thu,Fri"
+sessions,"Morning,Afternoon,Evening"
+reset_weekday,Sunday
+reset_hour_local,10
+active_week_mode,upcoming_monday
+max_sessions_user,5
+max_sessions_admin,8
