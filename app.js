@@ -36,6 +36,18 @@ function setAdminStatus(msg, cls = "muted") {
   el.textContent = msg;
 }
 
+function renderAnnouncement(text) {
+  const el = $("announcement");
+  const msg = String(text || "").trim();
+  if (!msg) {
+    el.classList.add("hidden");
+    el.textContent = "";
+    return;
+  }
+  el.textContent = msg;      // safe: text only
+  el.classList.remove("hidden");
+}
+
 function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cbName = "cb_" + Math.random().toString(36).slice(2);
@@ -156,6 +168,8 @@ async function refresh() {
   window.__weekStart = data.week_start;
   $("weekStart").textContent = data.week_start;
   $("maxPerCode").textContent = String(data.max_per_code ?? 5);
+
+  renderAnnouncement(data.announcement);
 
   const mine = data.mine || [];
   $("mineCount").textContent = String(mine.length);

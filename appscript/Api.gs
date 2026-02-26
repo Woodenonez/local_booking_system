@@ -68,6 +68,7 @@ function doGet(e) {
         grid,
         mine,
         max_per_code: maxPer,
+        announcement: getAnnouncement_(),
       }, cb);
     }
 

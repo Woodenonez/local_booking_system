@@ -5,6 +5,11 @@ const SHEET_NAMES = {
   LOGS: "Logs",
 };
 
+function getAnnouncement_() {
+  const cfg = getConfig_();
+  return cfg.announcement || "";
+}
+
 function getSheet_(name) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getSheetByName(name);
