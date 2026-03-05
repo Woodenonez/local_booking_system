@@ -12,24 +12,19 @@ function nowIso_() {
 }
 
 function weekStartUpcomingMonday_() {
-  // Active booking week = upcoming Monday in Europe/Stockholm
+  // Active booking week:
+  // - Mon..Sat: this week's Monday
+  // - Sun: next day's Monday (next week)
   const tz = getTimezone_();
   const now = new Date();
   const dow = Number(Utilities.formatDate(now, tz, "u")); // 1..7 (Mon..Sun)
-  // days until next Monday:
-  const daysUntilMon = (8 - dow) % 7; // Mon->0, Tue->6? careful: if Mon:0, Tue:6 is wrong
-  // Let's compute correctly:
-  // If Mon (1) => 0
-  // Tue (2) => 6 days until next Mon? Actually upcoming Monday means next week's Monday, so Tue => 6
-  // Wed => 5 ... Sun => 1
-  const daysToNextMon = (8 - dow);
-  const add = (dow === 1) ? 0 : daysToNextMon; // Mon stays this Mon; otherwise next Mon
-  const target = new Date(now.getTime() + add * 24 * 3600 * 1000);
 
-  const yyyy = Utilities.formatDate(target, tz, "yyyy");
-  const mm = Utilities.formatDate(target, tz, "MM");
-  const dd = Utilities.formatDate(target, tz, "dd");
-  return `${yyyy}-${mm}-${dd}`;
+  // If Sunday (7) -> add 1 day to reach Monday
+  // Else -> go back to Monday of this week
+  const addDays = (dow === 7) ? 1 : (1 - dow);
+
+  const target = new Date(now.getTime() + addDays * 24 * 3600 * 1000);
+  return Utilities.formatDate(target, tz, "yyyy-MM-dd");
 }
 
 function getValidCodeRow_(code) {
